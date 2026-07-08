@@ -1,54 +1,57 @@
-import sqlite3
+from peewee import SqliteDatabase, Model, CharField, DecimalField, IntegerField
 
-def get_db_connection():
-    conn = sqlite3.connect('db.sqlite')
-    conn.row_factory = sqlite3.Row
-    return conn
+db = SqliteDatabase('products.db')
 
-def create_table():
-    conn = get_db_connection()
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE,
-            price REAL,
-            category TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+class Product(BaseModel):
+    name = CharField(unique=True, max_length=100)
+    price = DecimalField(max_digits=10, decimal_places=2)
+    quantity = IntegerField(default=0)
+
+def init_db():
+    with db:
+        db.create_tables([Product])
+
+def add_product(name, price, quantity):
+    try:
+        return Product.create(name=name, price=price, quantity=quantity)
+    except Exception:
+        return None
 
 def get_all_products():
-    conn = get_db_connection()
-    products = conn.execute('SELECT * FROM products').fetchall()
-    conn.close()
-    return products
+    return list(Product.select())
 
-def add_product(name, price, category):
-    conn = get_db_connection()
-    conn.execute('INSERT INTO products (name, price, category) VALUES (?, ?, ?)', (name, price, category))
-    conn.commit()
-    conn.close()
+def get_product_by_id(product_id):
+    try:
+        return Product.get_by_id(product_id)
+    except Product.DoesNotExist:
+        return None
 
-def get_product_by_name(name):
-    conn = get_db_connection()
-    product = conn.execute('SELECT * FROM products WHERE name = ?', (name,)).fetchone()
-    conn.close()
-    return product
+def update_product(product_id, name=None, price=None, quantity=None):
+    try:
+        product = Product.get_by_id(product_id)
+        if name is not None:
+            product.name = name
+        if price is not None:
+            product.price = price
+        if quantity is not None:
+            product.quantity = quantity
+        product.save()
+        return product
+    except Product.DoesNotExist:
+        return None
 
-def update_product_by_name(old_name, new_name, new_price, new_category):
-    conn = get_db_connection()
-    conn.execute('''
-        UPDATE products 
-        SET name = ?, price = ?, category = ? 
-        WHERE name = ?
-    ''', (new_name, new_price, new_category, old_name))
-    conn.commit()
-    conn.close()
+def delete_product(product_id):
+    try:
+        product = Product.get_by_id(product_id)
+        product.delete_instance()
+        return True
+    except Product.DoesNotExist:
+        return False
 
-def delete_product_by_name(name):
-    conn = get_db_connection()
-    conn.execute('DELETE FROM products WHERE name = ?', (name,))
-    conn.commit()
-    conn.close()
+if __name__ == '__main__':
+    init_db()
 
