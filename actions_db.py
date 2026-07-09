@@ -44,14 +44,16 @@ def update_product(product_id, name=None, price=None, quantity=None):
     except Product.DoesNotExist:
         return None
 
-def delete_product(product_id):
+# ЗМІНЕНО ТУТ: Видалення за НАЗВОЮ
+def delete_product(product_name):
     try:
-        product = Product.get_by_id(product_id)
-        product.delete_instance()
-        return True
-    except Product.DoesNotExist:
+        query = Product.delete().where(Product.name == product_name)
+        rows_deleted = query.execute()
+        return rows_deleted > 0
+    except Exception:
         return False
 
 if __name__ == '__main__':
     init_db()
+
 

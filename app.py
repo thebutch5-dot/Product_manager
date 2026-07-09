@@ -31,13 +31,15 @@ def edit(product_id):
         return redirect(url_for('index'))
     return render_template('edit.html', product=product)
 
-@app.route('/delete/<int:product_id>', methods=['POST'])
-def remove(product_id):
-    delete_product(product_id)
+# ЗМІНЕНО ТУТ: Приймаємо назву (рядок)
+@app.route('/delete/<string:product_name>', methods=['POST'])
+def remove(product_name):
+    delete_product(product_name)
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
