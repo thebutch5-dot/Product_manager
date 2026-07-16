@@ -2,48 +2,60 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Управління продуктами</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Головна | Product Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Додати продукт</h1>
-    <form action="/add" method="POST">
-        <input type="text" name="name" placeholder="Назва" required>
-        <input type="number" name="price" step="0.01" placeholder="Ціна" required>
-        <input type="number" name="quantity" placeholder="Кількість" required>
-        <button type="submit">Додати</button>
-    </form>
 
-    <h1>Список продуктів</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Назва</th>
-                <th>Ціна</th>
-                <th>Кількість</th>
-                <th>Дії</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.quantity }}</td>
-                <td>
-                    <a href="/edit/{{ product.id }}">Редагувати</a>
-                    <!-- ЗМІНЕНО ТУТ: передаємо назву замість ID -->
-                    <form action="/delete/{{ product.name }}" method="POST" style="display:inline;">
-                        <button type="submit">Видалити</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">🛒 Product Manager</a>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Головна</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="container" style="display: block;">
+            <h2>Список товарів</h2>
+            <div class="table-wrapper">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Назва</th>
+                            <th>Категорія</th>
+                            <th>Ціна</th>
+                            <th>Опис</th>
+                            <th style="text-align: right;">Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td style="font-weight: bold;">{{ product.name }}</td>
+                            <td>{{ product.category }}</td>
+                            <td>{{ product.price }} ₴</td>
+                            <td>{{ product.description }}</td>
+                            <td style="text-align: right;">
+                                <a href="/edit/{{ product.id }}" class="btn btn-primary btn-sm">Редагувати</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>
+
+
+
 
 
 

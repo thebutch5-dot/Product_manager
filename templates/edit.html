@@ -2,20 +2,67 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Редагування продукту</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редагування товару | Product Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Редагувати продукт</h1>
-    <form action="/edit/{{ product.id }}" method="POST">
-        <input type="text" name="name" value="{{ product.name }}" required>
-        <input type="number" name="price" step="0.01" value="{{ product.price }}" required>
-        <input type="number" name="quantity" value="{{ product.quantity }}" required>
-        <button type="submit">Зберегти зміни</button>
-    </form>
-    <br>
-    <a href="/">Назад до списку</a>
+
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">🛒 Product Manager</a>
+            <ul class="nav-links">
+                <li><a href="/">Головна</a></li>
+                <li><a href="#" class="active">Редагування</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="card-wrapper">
+                <div class="card">
+                    <h2>Редагування товару</h2>
+
+                    <form action="/edit/{{ product.id }}" method="POST">
+                        <div class="form-group">
+                            <label for="productName">Назва товару</label>
+                            <input type="text" class="form-control" id="productName" name="name" value="{{ product.name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Категорія</label>
+                            <select class="form-control" id="productCategory" name="category">
+                                <option value="electronics" {% if product.category == 'electronics' %}selected{% endif %}>Електроніка</option>
+                                <option value="appliances" {% if product.category == 'appliances' %}selected{% endif %}>Побутова техніка</option>
+                                <option value="clothes" {% if product.category == 'clothes' %}selected{% endif %}>Одяг</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productPrice">Ціна (грн)</label>
+                            <input type="number" class="form-control" id="productPrice" name="price" value="{{ product.price }}" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productDescription">Опис товару</label>
+                            <textarea class="form-control" id="productDescription" name="description" rows="4">{{ product.description }}</textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="/" class="btn btn-secondary">Скасувати</a>
+                            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>
+
+
 
 
 
