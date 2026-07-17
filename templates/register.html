@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Реєстрація</title>
+    <link href="https://jsdelivr.net" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center mb-4">Реєстрація</h2>
+
+                {% with messages = get_flashed_messages() %}
+                  {% for msg in messages %}
+                    <div class="alert alert-danger" role="alert">
+                      {{ msg }}
+                    </div>
+                  {% endfor %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Ім'я компанії:</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль:</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Увійти</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('login') }}">Вже є акаунт? Увійти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+x1
+

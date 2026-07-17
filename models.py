@@ -9,3 +9,9 @@ class Product(db.Model):
     price = db.Column(db.Float)
     description = db.Column(db.Text)
 
+class Company(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+
+
