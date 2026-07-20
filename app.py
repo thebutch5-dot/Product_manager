@@ -1,8 +1,8 @@
-import re
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from models import db, Product, Company
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
+import actions_db
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -14,30 +14,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 with app.app_context():
     db.create_all()
-
-
-# Временные функции-заглушки, чтобы проект запускался без actions_db
-def product_exists(title):
-    return Product.query.filter_by(name=title).first() is not None
-
-
-def add_product(title, price, category):
-    new_prod = Product(name=title, price=price, category=category)
-    db.session.add(new_prod)
-    db.session.commit()
-
-
-def get_products():
-    return Product.query.all()
-
-
-def get_products_by_category(category):
-    return Product.query.filter_by(category=category).all()
-
-
-def get_categories():
-    products = Product.query.all()
-    return list(set([p.category for p in products if p.category]))
 
 
 def is_logged():
@@ -63,21 +39,21 @@ def products():
 
         price = float(price)
 
-        if product_exists(title):
+        if actions_db.product_exists(title):
             flash(f'Product {title} already exists!')
         else:
-            add_product(title, price, category)
+            actions_db.add_product(title, price, category)
             flash(f'Product {title} was added!')
 
         return redirect(url_for('products'))
 
-    all_categories = get_categories()
+    all_categories = actions_db.get_categories()
     choose_category = request.args.get('category', 'all')
 
     if choose_category == 'all':
-        filter_products = get_products()
+        filter_products = actions_db.get_products()
     else:
-        filter_products = get_products_by_category(choose_category)
+        filter_products = actions_db.get_products_by_category(choose_category)
 
     return render_template('product.html',
                            products=filter_products,
@@ -101,38 +77,19 @@ def register():
         name = request.form.get('name', '').strip()
         password = request.form.get('password', '')
 
-        if not name:
-            flash('Логін не може бути порожнім')
+        error = actions_db.validate_registration(name, password)
+        if error:
+            flash(error)
             return redirect(url_for('register'))
 
-        if len(password) < 6:
-            flash('Пароль має бути не коротшим за 6 символів')
-            return redirect(url_for('register'))
-
-        if not re.search(r'[A-Za-z]', password):
-            flash('Пароль має містити хоча б одну літеру')
-            return redirect(url_for('register'))
-
-        if not re.search(r'\d', password):
-            flash('Пароль має містити хоча б одну цифру')
-            return redirect(url_for('register'))
-
-        if not re.search(r'[^A-Za-z0-9]', password):
-            flash('Пароль має містити хоча б один спеціальний знак')
-            return redirect(url_for('register'))
-
-        existing_company = Company.query.filter_by(name=name).first()
+        existing_company = actions_db.get_company_by_name(name)
         if existing_company:
             flash(f'Company {name} already exists!')
             return redirect(url_for('register'))
-        else:
-            hash_pass = generate_password_hash(password)
-            new_company = Company(name=name, password=hash_pass)
-            db.session.add(new_company)
-            db.session.commit()
 
-            flash(f'Company {name} was created!')
-            return redirect(url_for('login'))
+        actions_db.create_company(name, password)
+        flash(f'Company {name} was created!')
+        return redirect(url_for('login'))
 
     return render_template('register.html')
 
@@ -143,7 +100,7 @@ def login():
         name = request.form.get('name')
         password = request.form.get('password')
 
-        company = Company.query.filter_by(name=name).first()
+        company = actions_db.get_company_by_name(name)
 
         if not company:
             flash(f'Company {name} does not exist!')
@@ -169,6 +126,7 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
