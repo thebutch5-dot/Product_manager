@@ -1,42 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Реєстрація</title>
-    <link href="https://jsdelivr.net" rel="stylesheet">
+    <!-- Официальный CDN Bootstrap Стили -->
+    <link href="https://jsdelivr.net" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <h2 class="text-center mb-4">Реєстрація</h2>
-
-                {% with messages = get_flashed_messages() %}
-                  {% for msg in messages %}
-                    <div class="alert alert-danger" role="alert">
-                      {{ msg }}
-                    </div>
-                  {% endfor %}
-                {% endwith %}
-
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Ім'я компанії:</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Пароль:</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-dark w-100">Увійти</button>
-                </form>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('login') }}">Вже є акаунт? Увійти</a>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow-sm" style="width: 100%; max-width: 400px;">
+        <div class="card-body p-4">
+            <h3 class="card-title text-center mb-4">Реєстрація компанії</h3>
+            <form action="" method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label text-secondary small">Логін / Назва</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
                 </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-secondary small">Пароль</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 mt-2">Створити аккаунт</button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('login') }}" class="text-decoration-none small">Вже є аккаунт? Увійти</a>
             </div>
         </div>
     </div>
+    <!-- Официальный CDN Bootstrap Скрипты -->
+    <script src="https://jsdelivr.net" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
-x1
-

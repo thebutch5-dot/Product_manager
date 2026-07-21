@@ -5,6 +5,9 @@ from werkzeug.security import check_password_hash
 import actions_db
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 app.secret_key = 'secret_key'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -124,18 +127,33 @@ def logout():
     return redirect(url_for('login'))
 
 
+# --- ДОДАНА ФУНКЦІЯ РЕДАГУВАННЯ (БЕЗ ЗМІНИ ВАШОГО КОДУ) ---
+@app.route('/edit/<name_product>', methods=['GET', 'POST'])
+def edit(name_product):
+    if not is_logged():
+        return redirect(url_for('login'))
+
+    prod = Product.query.filter_by(name=name_product).first_or_404()
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        price = request.form.get('price')
+        category = request.form.get('category')
+
+        if not title or not price:
+            flash('Title and Price cannot be empty!')
+            return redirect(url_for('edit', name_product=name_product))
+
+        prod.name = title
+        prod.price = float(price)
+        prod.category = category
+
+        db.session.commit()
+        flash(f'Product {name_product} was updated!')
+        return redirect(url_for('products'))
+
+    return render_template('edit.html', product=prod)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-

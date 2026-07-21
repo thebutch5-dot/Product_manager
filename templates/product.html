@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Manager</title>
-    <!-- Подключение оригинального Bootstrap (Стили) -->
-    <link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Подключение вашего личного файла стилей из папки static -->
+    <!-- АЛЬТЕРНАТИВНИЙ РОБОЧИЙ CDN BOOTSTRAP (Стилі) -->
+    <link href="https://cloudflare.com" rel="stylesheet">
+    <!-- Підключення вашого личного файла стилей з папки static -->
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -81,6 +81,7 @@
                                             <td>${{ "%.2f"|format(prod.price) }}</td>
                                             <td><span class="badge bg-secondary">{{ prod.category if prod.category else 'None' }}</span></td>
                                             <td class="text-end">
+                                                <a href="{{ url_for('edit', name_product=prod.name) }}" class="btn btn-warning btn-sm me-1">Edit</a>
                                                 <a href="{{ url_for('delete', name_product=prod.name) }}" class="btn btn-danger btn-sm">Delete</a>
                                             </td>
                                         </tr>
@@ -99,7 +100,7 @@
         </div>
     </div>
 
-    <!-- Подключение оригинального Bootstrap (Скрипты) -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- АЛЬТЕРНАТИВНИЙ РОБОЧИЙ CDN BOOTSTRAP (Скрипти) -->
+    <script src="https://cloudflare.com"></script>
 </body>
 </html>
