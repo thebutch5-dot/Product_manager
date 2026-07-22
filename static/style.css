@@ -1,6 +1,5 @@
+/* 1. Скидання та загальні налаштування */
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
@@ -11,49 +10,25 @@ body {
     line-height: 1.6;
 }
 
-.header {
-    background-color: #212529;
-    color: #fff;
-    padding: 15px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* 2. Контейнер для сповіщень у верхньому правому кутку (тепер вони не ламають верстку) */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: 100%;
+    max-width: 350px;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
+/* 3. Оновлений Navbar (виправлено конфлікт flex-структури) */
+.navbar-brand {
     font-size: 24px;
     font-weight: bold;
     text-decoration: none;
-    color: #fff;
+    color: #fff !important;
 }
 
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    color: #rgba(255,255,255,0.7);
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-    color: #fff;
-}
-
-main {
-    padding: 40px 0;
-}
-
+/* 4. Картки та форми */
 .card-wrapper {
     max-width: 600px;
     margin: 0 auto;
@@ -61,8 +36,8 @@ main {
 
 .card {
     background: #fff;
-    padding: 30px;
-    border-radius: 8px;
+    border: none !important;
+    border-radius: 8px !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
@@ -72,96 +47,32 @@ main {
     font-size: 28px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 16px;
-    transition: border-color 0.15s;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #86b7fe;
-}
-
-textarea.form-control {
-    resize: vertical;
-}
-
-.btn-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 25px;
-}
-
-.btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    text-decoration: none;
-    text-align: center;
-}
-
-.btn-primary {
-    background-color: #0d6efd;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-}
-
-.btn-secondary {
-    background-color: transparent;
-    border-color: #6c757d;
-    color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #6c757d;
-    color: #fff;
-}
-
+/* 5. Кастомні налаштування для таблиці */
 .table-wrapper {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    margin-top: 20px;
 }
 
-.product-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
+.table th {
+    background-color: #f8f9fa !important;
+    color: #333;
+    border-bottom: 2px solid #dee2e6 !important;
 }
 
-.product-table th, .product-table td {
-    padding: 12px;
-    border-bottom: 1px solid #dee2e6;
+.table td {
+    border-bottom: 1px solid #dee2e6 !important;
 }
 
-.product-table th {
-    background-color: #f8f9fa;
+/* 6. Покращення кнопок */
+.btn {
+    border-radius: 4px !important;
+    font-size: 16px;
+    transition: all 0.2s ease;
 }
 
 .btn-sm {
-    padding: 5px 10px;
-    font-size: 14px;
+    padding: 5px 10px !important;
+    font-size: 14px !important;
 }

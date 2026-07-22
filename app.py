@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from models import db, Product, Company
 from werkzeug.security import check_password_hash
@@ -11,12 +12,33 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.secret_key = 'secret_key'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite')}"
+# Підключаємо правильну базу даних проєкту
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'products.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 with app.app_context():
     db.create_all()
+
+    # --- БЕЗПЕЧНИЙ АВТОПАТЧ БАЗИ ДАНИХ (ОНОВЛЕНИЙ) ---
+    # Цей код автоматично додає відсутні колонки category та description, зберігаючи всі товари
+    try:
+        import sqlite3
+
+        with sqlite3.connect(os.path.join(BASE_DIR, 'products.db')) as conn:
+            # Спроба додати колонку category, якщо її немає
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN category TEXT;")
+            except Exception:
+                pass
+
+            # Спроба додати колонку description, якщо її немає
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN description TEXT;")
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 def is_logged():
@@ -127,7 +149,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-# --- ДОДАНА ФУНКЦІЯ РЕДАГУВАННЯ (БЕЗ ЗМІНИ ВАШОГО КОДУ) ---
 @app.route('/edit/<name_product>', methods=['GET', 'POST'])
 def edit(name_product):
     if not is_logged():

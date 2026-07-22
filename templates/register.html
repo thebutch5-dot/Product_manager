@@ -4,30 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Реєстрація</title>
-    <!-- Официальный CDN Bootstrap Стили -->
-    <link href="https://jsdelivr.net" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- ПОДКЛЮЧАЕМ ЛОКАЛЬНЫЙ BOOTSTRAP ИЗ ВАШЕЙ ПАПКИ STATIC -->
+    <link href="{{ url_for('static', filename='Bootstrap.css') }}" rel="stylesheet">
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center vh-100">
-    <div class="card shadow-sm" style="width: 100%; max-width: 400px;">
+<body class="bg-light d-flex flex-column align-items-center justify-content-center vh-100">
+
+    <div style="width: 100%; max-width: 400px;" class="mb-3">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="card shadow-sm bg-white" style="width: 100%; max-width: 400px; border: none; border-radius: 8px;">
         <div class="card-body p-4">
-            <h3 class="card-title text-center mb-4">Реєстрація компанії</h3>
+            <h3 class="card-title text-center mb-4 fw-bold">Реєстрація компанії</h3>
             <form action="" method="POST">
                 <div class="mb-3">
-                    <label for="name" class="form-label text-secondary small">Логін / Назва</label>
+                    <label for="name" class="form-label text-secondary small fw-bold">Логін / Назва</label>
                     <input type="text" class="form-control" id="name" name="name" required>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label text-secondary small">Пароль</label>
+                    <label for="password" class="form-label text-secondary small fw-bold">Пароль</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-success w-100 mt-2">Створити аккаунт</button>
+                <button type="submit" class="btn btn-success w-100 mt-2 py-2 fw-semibold text-white">Створити аккаунт</button>
             </form>
             <div class="text-center mt-3">
                 <a href="{{ url_for('login') }}" class="text-decoration-none small">Вже є аккаунт? Увійти</a>
             </div>
         </div>
     </div>
-    <!-- Официальный CDN Bootstrap Скрипты -->
-    <script src="https://jsdelivr.net" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -4,35 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редагування товару</title>
-    <!-- Официальный CDN Bootstrap Стили -->
-    <link href="https://jsdelivr.net" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- ПОДКЛЮЧАЕМ ЛОКАЛЬНЫЙ BOOTSTRAP ИЗ ВАШЕЙ ПАПКИ STATIC -->
+    <link href="{{ url_for('static', filename='Bootstrap.css') }}" rel="stylesheet">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">Менеджер товарів</span>
+    <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand mb-0 h1 fw-bold text-white">Менеджер товарів</span>
         </div>
     </nav>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card shadow-sm">
+
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    {% for message in messages %}
+                      <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <div class="card shadow-sm bg-white" style="border: none; border-radius: 8px;">
                     <div class="card-body p-4">
-                        <h2 class="card-title text-center mb-4">Редагування товару</h2>
+                        <h2 class="card-title text-center mb-4 fw-bold">Редагування товару</h2>
                         <form action="" method="POST">
                             <div class="mb-3">
-                                <label for="title" class="form-label text-secondary small">Назва</label>
-                                <input type="text" class="form-control" id="title" name="title" value="{{ product.name }}">
+                                <label for="title" class="form-label text-secondary small fw-bold">Назва</label>
+                                <input type="text" class="form-control" id="title" name="title" value="{{ product.name }}" required>
                             </div>
                             <div class="mb-3">
-                                <label for="price" class="form-label text-secondary small">Ціна</label>
-                                <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ product.price }}">
+                                <label for="price" class="form-label text-secondary small fw-bold">Ціна</label>
+                                <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ product.price }}" required>
                             </div>
                             <div class="mb-3">
-                                <label for="category" class="form-label text-secondary small">Категорія</label>
+                                <label for="category" class="form-label text-secondary small fw-bold">Категорія</label>
                                 <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
                             </div>
-                            <button type="submit" class="btn btn-success w-100 mt-2">Редагувати</button>
+                            <button type="submit" class="btn btn-success w-100 mt-2 py-2 fw-semibold text-white">Редагувати</button>
                         </form>
                         <div class="text-center mt-3">
                             <a href="{{ url_for('products') }}" class="text-decoration-none small text-muted">Назад до списку</a>
@@ -42,7 +53,5 @@
             </div>
         </div>
     </div>
-    <!-- Официальный CDN Bootstrap Скрипты -->
-    <script src="https://jsdelivr.net" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
