@@ -26,8 +26,8 @@ def product_exists(title):
     return Product.query.filter_by(name=title).first() is not None
 
 
-def add_product(title, price, category):
-    new_prod = Product(name=title, price=price, category=category)
+def add_product(title, price, category, quantity=0):
+    new_prod = Product(name=title, price=price, category=category, quantity=quantity)
     db.session.add(new_prod)
     db.session.commit()
 

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редагування товару</title>
-    <!-- ПОДКЛЮЧАЕМ ЛОКАЛЬНЫЙ BOOTSTRAP ИЗ ВАШЕЙ ПАПКИ STATIC -->
     <link href="{{ url_for('static', filename='Bootstrap.css') }}" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -42,6 +41,10 @@
                             <div class="mb-3">
                                 <label for="category" class="form-label text-secondary small fw-bold">Категорія</label>
                                 <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label text-secondary small fw-bold">Кількість</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="{{ product.quantity if product.quantity is not none else 0 }}" min="0" required>
                             </div>
                             <button type="submit" class="btn btn-success w-100 mt-2 py-2 fw-semibold text-white">Редагувати</button>
                         </form>

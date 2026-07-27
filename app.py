@@ -12,7 +12,6 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.secret_key = 'secret_key'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-# Підключаємо правильну базу даних проєкту
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'products.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -20,21 +19,21 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-    # --- БЕЗПЕЧНИЙ АВТОПАТЧ БАЗИ ДАНИХ (ОНОВЛЕНИЙ) ---
-    # Цей код автоматично додає відсутні колонки category та description, зберігаючи всі товари
     try:
         import sqlite3
-
         with sqlite3.connect(os.path.join(BASE_DIR, 'products.db')) as conn:
-            # Спроба додати колонку category, якщо її немає
             try:
                 conn.execute("ALTER TABLE product ADD COLUMN category TEXT;")
             except Exception:
                 pass
 
-            # Спроба додати колонку description, якщо її немає
             try:
                 conn.execute("ALTER TABLE product ADD COLUMN description TEXT;")
+            except Exception:
+                pass
+
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN quantity INTEGER NOT NULL DEFAULT 0;")
             except Exception:
                 pass
     except Exception:
@@ -57,17 +56,19 @@ def products():
         title = request.form.get('title')
         price = request.form.get('price')
         category = request.form.get('category')
+        quantity = request.form.get('quantity', '0')
 
         if not title or not price:
             flash('Title and Price cannot be empty!')
             return redirect(url_for('products'))
 
         price = float(price)
+        quantity = int(quantity) if quantity.isdigit() else 0
 
         if actions_db.product_exists(title):
             flash(f'Product {title} already exists!')
         else:
-            actions_db.add_product(title, price, category)
+            actions_db.add_product(title, price, category, quantity)
             flash(f'Product {title} was added!')
 
         return redirect(url_for('products'))
@@ -107,7 +108,7 @@ def register():
             flash(error)
             return redirect(url_for('register'))
 
-        existing_company = actions_db.get_company_by_name(name)
+        existing_company = Company.query.filter(Company.name.ilike(name)).first()
         if existing_company:
             flash(f'Company {name} already exists!')
             return redirect(url_for('register'))
@@ -122,10 +123,10 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        name = request.form.get('name')
-        password = request.form.get('password')
+        name = request.form.get('name', '').strip()
+        password = request.form.get('password', '')
 
-        company = actions_db.get_company_by_name(name)
+        company = Company.query.filter(Company.name.ilike(name)).first()
 
         if not company:
             flash(f'Company {name} does not exist!')
@@ -160,6 +161,7 @@ def edit(name_product):
         title = request.form.get('title')
         price = request.form.get('price')
         category = request.form.get('category')
+        quantity = request.form.get('quantity', '0')
 
         if not title or not price:
             flash('Title and Price cannot be empty!')
@@ -168,6 +170,7 @@ def edit(name_product):
         prod.name = title
         prod.price = float(price)
         prod.category = category
+        prod.quantity = int(quantity) if quantity.isdigit() else 0
 
         db.session.commit()
         flash(f'Product {name_product} was updated!')
