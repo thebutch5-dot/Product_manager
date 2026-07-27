@@ -1,43 +1,183 @@
-from flask import Flask, render_template, request, redirect, url_for
-from actions_db import init_db, get_all_products, add_product, update_product, get_product_by_id, delete_product
+import os
+import re
+from flask import Flask, render_template, request, flash, redirect, url_for, session
+from models import db, Product, Company
+from werkzeug.security import check_password_hash
+import actions_db
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-init_db()
+app.secret_key = 'secret_key'
 
-@app.route('/')
-def index():
-    products = get_all_products()
-    return render_template('product.html', products=products)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'products.db')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route('/add', methods=['POST'])
-def create():
-    name = request.form.get('name')
-    price = request.form.get('price')
-    quantity = request.form.get('quantity')
-    add_product(name, price, quantity)
-    return redirect(url_for('index'))
+db.init_app(app)
+with app.app_context():
+    db.create_all()
 
-@app.route('/edit/<int:product_id>', methods=['GET', 'POST'])
-def edit(product_id):
-    product = get_product_by_id(product_id)
-    if not product:
-        return "Product not found", 404
+    try:
+        import sqlite3
+        with sqlite3.connect(os.path.join(BASE_DIR, 'products.db')) as conn:
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN category TEXT;")
+            except Exception:
+                pass
+
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN description TEXT;")
+            except Exception:
+                pass
+
+            try:
+                conn.execute("ALTER TABLE product ADD COLUMN quantity INTEGER NOT NULL DEFAULT 0;")
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+
+def is_logged():
+    return 'company' in session
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/products', methods=['GET', 'POST'])
+def products():
+    session.permanent = True
+
+    if not is_logged():
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
-        name = request.form.get('name')
+        title = request.form.get('title')
         price = request.form.get('price')
-        quantity = request.form.get('quantity')
-        update_product(product_id, name, price, quantity)
-        return redirect(url_for('index'))
-    return render_template('edit.html', product=product)
+        category = request.form.get('category')
+        quantity = request.form.get('quantity', '0')
 
-@app.route('/delete/<int:product_id>', methods=['POST'])
-def remove(product_id):
-    delete_product(product_id)
-    return redirect(url_for('index'))
+        if not title or not price:
+            flash('Title and Price cannot be empty!')
+            return redirect(url_for('products'))
+
+        price = float(price)
+        quantity = int(quantity) if quantity.isdigit() else 0
+
+        if actions_db.product_exists(title):
+            flash(f'Product {title} already exists!')
+        else:
+            actions_db.add_product(title, price, category, quantity)
+            flash(f'Product {title} was added!')
+
+        return redirect(url_for('products'))
+
+    all_categories = actions_db.get_categories()
+    choose_category = request.args.get('category', 'all')
+
+    if choose_category == 'all':
+        filter_products = actions_db.get_products()
+    else:
+        filter_products = actions_db.get_products_by_category(choose_category)
+
+    return render_template('product.html',
+                           products=filter_products,
+                           categories=all_categories,
+                           choose_category=choose_category)
+
+
+@app.route('/delete/<name_product>')
+def delete(name_product):
+    prod = Product.query.filter_by(name=name_product).first()
+    if prod:
+        db.session.delete(prod)
+        db.session.commit()
+    flash(f'Product {name_product} was deleted!')
+    return redirect(url_for('products'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        password = request.form.get('password', '')
+
+        error = actions_db.validate_registration(name, password)
+        if error:
+            flash(error)
+            return redirect(url_for('register'))
+
+        existing_company = Company.query.filter(Company.name.ilike(name)).first()
+        if existing_company:
+            flash(f'Company {name} already exists!')
+            return redirect(url_for('register'))
+
+        actions_db.create_company(name, password)
+        flash(f'Company {name} was created!')
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        password = request.form.get('password', '')
+
+        company = Company.query.filter(Company.name.ilike(name)).first()
+
+        if not company:
+            flash(f'Company {name} does not exist!')
+            return redirect(url_for('login'))
+
+        if not check_password_hash(company.password, password):
+            flash(f'Password incorrect!')
+            return redirect(url_for('login'))
+
+        session['company'] = company.name
+        flash(f'Welcome {name}!')
+        return redirect(url_for('products'))
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('company', None)
+    flash('Ви вийшли з системи')
+    return redirect(url_for('login'))
+
+
+@app.route('/edit/<name_product>', methods=['GET', 'POST'])
+def edit(name_product):
+    if not is_logged():
+        return redirect(url_for('login'))
+
+    prod = Product.query.filter_by(name=name_product).first_or_404()
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        price = request.form.get('price')
+        category = request.form.get('category')
+        quantity = request.form.get('quantity', '0')
+
+        if not title or not price:
+            flash('Title and Price cannot be empty!')
+            return redirect(url_for('edit', name_product=name_product))
+
+        prod.name = title
+        prod.price = float(price)
+        prod.category = category
+        prod.quantity = int(quantity) if quantity.isdigit() else 0
+
+        db.session.commit()
+        flash(f'Product {name_product} was updated!')
+        return redirect(url_for('products'))
+
+    return render_template('edit.html', product=prod)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

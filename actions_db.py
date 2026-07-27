@@ -1,57 +1,64 @@
-from peewee import SqliteDatabase, Model, CharField, DecimalField, IntegerField
+import re
+from models import db, Product, Company
+from werkzeug.security import generate_password_hash
 
-db = SqliteDatabase('products.db')
 
-class BaseModel(Model):
-    class Meta:
-        database = db
+def validate_registration(name, password):
+    if not name:
+        return 'Логін не може бути порожнім'
 
-class Product(BaseModel):
-    name = CharField(unique=True, max_length=100)
-    price = DecimalField(max_digits=10, decimal_places=2)
-    quantity = IntegerField(default=0)
+    if len(password) < 6:
+        return 'Пароль має бути не коротшим за 6 символів'
 
-def init_db():
-    with db:
-        db.create_tables([Product])
+    if not re.search(r'[A-Za-z]', password):
+        return 'Пароль має містити хоча б одну літеру'
 
-def add_product(name, price, quantity):
-    try:
-        return Product.create(name=name, price=price, quantity=quantity)
-    except Exception:
-        return None
+    if not re.search(r'\d', password):
+        return 'Пароль має містити хоча б одну цифру'
 
-def get_all_products():
-    return list(Product.select())
+    if not re.search(r'[^A-Za-z0-9]', password):
+        return 'Пароль має містити хоча б один спеціальний знак'
 
-def get_product_by_id(product_id):
-    try:
-        return Product.get_by_id(product_id)
-    except Product.DoesNotExist:
-        return None
+    return None
 
-def update_product(product_id, name=None, price=None, quantity=None):
-    try:
-        product = Product.get_by_id(product_id)
-        if name is not None:
-            product.name = name
-        if price is not None:
-            product.price = price
-        if quantity is not None:
-            product.quantity = quantity
-        product.save()
-        return product
-    except Product.DoesNotExist:
-        return None
 
-def delete_product(product_id):
-    try:
-        product = Product.get_by_id(product_id)
-        product.delete_instance()
-        return True
-    except Product.DoesNotExist:
-        return False
+def product_exists(title):
+    return Product.query.filter_by(name=title).first() is not None
 
-if __name__ == '__main__':
-    init_db()
+
+def add_product(title, price, category, quantity=0):
+    new_prod = Product(name=title, price=price, category=category, quantity=quantity)
+    db.session.add(new_prod)
+    db.session.commit()
+
+
+def get_products():
+    return Product.query.all()
+
+
+def get_products_by_category(category):
+    return Product.query.filter_by(category=category).all()
+
+
+def get_categories():
+    products = Product.query.all()
+    return list(set([p.category for p in products if p.category]))
+
+
+def get_company_by_name(name):
+    return Company.query.filter_by(name=name).first()
+
+
+def create_company(name, password):
+    hash_pass = generate_password_hash(password)
+    new_company = Company(name=name, password=hash_pass)
+    db.session.add(new_company)
+    db.session.commit()
+
+
+
+
+
+
+
 

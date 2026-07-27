@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація</title>
+    <!-- ПОДКЛЮЧАЕМ ЛОКАЛЬНЫЙ BOOTSTRAP ИЗ ВАШЕЙ ПАПКИ STATIC -->
+    <link href="{{ url_for('static', filename='Bootstrap.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column align-items-center justify-content-center vh-100">
+
+    <div style="width: 100%; max-width: 400px;" class="mb-3">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="card shadow-sm bg-white" style="width: 100%; max-width: 400px; border: none; border-radius: 8px;">
+        <div class="card-body p-4">
+            <h3 class="card-title text-center mb-4 fw-bold">Реєстрація компанії</h3>
+            <form action="" method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label text-secondary small fw-bold">Логін / Назва</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-secondary small fw-bold">Пароль</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 mt-2 py-2 fw-semibold text-white">Створити аккаунт</button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('login') }}" class="text-decoration-none small">Вже є аккаунт? Увійти</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
